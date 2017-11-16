@@ -122,12 +122,83 @@ $(document).ready(function () {
                         dialog.init(function () {
                             setTimeout(function () {
                                 dialog.find(".modal-title").html("Tambahkan Data Tokoh");
-                                dialog.find(".bootbox-body").html('<div class="row"><div class="col-md-12 col-sm-12 col-xs-12"><label>Nama :</label><input  class="form-control nama" placeholder="Nama Tokoh" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tempat Lahir :</label><input  class="form-control tempat_lahir" placeholder="Tempat Lahir" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Nama :</label><input  class="form-control tanggal_lahir" placeholder="Tanggal Lahir" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tanggal Wafat :</label><input  class="form-control tanggal_wafat" placeholder="Optional"></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Foto :</label><input  class="form-control foto" name="foto" type="file" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Video :</label><input  class="form-control video" name="video" type="file"  required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tentang Tokoh :</label><textarea class="form-control txtArea" row="4"></textarea> </div></div><div class="row" style="padding-top:10px"><div class="col-md-6 col-sm-6 col-xs-6"><button class="btn btn-success waves-effect saveit pull-right">Simpan Data</button></div><div class="col-md-6 col-sm-6 col-xs-6"><button class="btn btn-primary waves-effect pull-left" data-dismiss="modal">Tutup</button></div></div>');
+                                dialog.find(".bootbox-body").html('<div class="row"><div class="col-md-12 col-sm-12 col-xs-12"><label>Nama :</label><input  class="form-control nama" placeholder="Nama Tokoh" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tempat Lahir :</label><input  class="form-control tempat_lahir" placeholder="Tempat Lahir" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tanggal Lahir :</label><input  class="form-control tanggal_lahir" placeholder="Tanggal Lahir" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tanggal Wafat :</label><input  class="form-control tanggal_wafat" placeholder="Optional"></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Foto :</label><input  class="form-control foto" id="foto" name="foto" type="file" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Video :</label><input  class="form-control video" name="video" type="file" id="video"  required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tentang Tokoh :</label><textarea class="form-control txtArea" row="4"></textarea> </div></div><div class="row" style="padding-top:10px"><div class="col-md-6 col-sm-6 col-xs-6"><button class="btn btn-success waves-effect saveit pull-right">Simpan Data</button></div><div class="col-md-6 col-sm-6 col-xs-6"><button class="btn btn-primary waves-effect pull-left" data-dismiss="modal">Tutup</button></div></div>');
                                 dialog.find(".tanggal_lahir").datepicker({
-                                    format: 'yyyy/mm/dd'
+                                    format: 'yyyy-mm-dd'
                                 });
                                 dialog.find(".tanggal_wafat").datepicker({
-                                    format: 'yyyy/mm/dd'
+                                    format: 'yyyy-mm-dd'
+                                });
+                                dialog.find(".saveit").on("click",function(){
+                                    var formData = new FormData();
+                                    formData.append('foto', $('#foto')[0].files[0]);
+                                    formData.append('video', $('#video')[0].files[0]);
+                                    $.ajax({
+                                        url: base_url+"upload",
+                                        type: 'POST',
+                                        data: formData,
+                                        mimeType: "multipart/form-data",
+                                        contentType: false,
+                                        cache: false,
+                                        processData: false,
+                                        success: function(data, textStatus, jqXHR) {
+                                            console.log(textStatus);
+                                            if(textStatus == "success")
+                                            {
+                                                var data = JSON.parse(data);
+                                                if(data["status"] == 1)
+                                                {
+                                                   var nama = $(".nama").val();
+                                                   var tempat_lahir = $(".tempat_lahir").val();
+                                                   var tanggal_lahir = $(".tanggal_lahir").val();
+                                                   var tanggal_wafat = $(".tanggal_wafat").val();
+                                                   var txtArea = $(".txtArea").val();
+                                                   var foto = data["dataFoto"];
+                                                   var video = data["dataVideo"];
+                                                   $.post(base_url+"savedata",{nama:nama,tempat_lahir:tempat_lahir,tanggal_lahir:tanggal_lahir,tanggal_wafat:tanggal_wafat,txtArea:txtArea,foto:foto,video:video},function(e){
+                                                    if(e["status"] == 1)
+                                                    {
+                                                        bootbox.hideAll();
+                                                        swal({
+                                                            title: 'Sukses',
+                                                            text: 'Data Sukses Tersimpan',
+                                                            type: 'success'
+                                                        }, function () {
+                                                           $('#tokoh').DataTable().ajax.reload();
+                                                        })
+                                                        
+                                                    }else{
+                                                        swal({
+                                                            title: 'Error!',
+                                                            text: 'Gagal Tambah Data',
+                                                            type: 'error'
+                                                        })
+                                                    }
+                                                   });
+                                                }else{
+                                                   swal({
+                                                        title: 'Error!',
+                                                        text: 'Gagal Upload File',
+                                                        type: 'error'
+                                                    })
+                                                }
+                                            }else if(textStatus == "timeout"){
+                                                swal({
+                                                        title: 'Error!',
+                                                        text: 'Jaringan Timeout !',
+                                                        type: 'error'
+                                                    })
+                                            }else if(textStatus == "error")
+                                            {
+                                                swal({
+                                                        title: 'Error!',
+                                                        text: 'Not Found',
+                                                        type: 'error'
+                                                    })
+                                            }
+                                            
+                                        }
+                                    });
                                 });
                             }, 3000);
                         });
@@ -158,7 +229,105 @@ $(document).ready(function () {
         });
         $('#tokoh tbody').on('click', '#edit', function () {
             var data = table.row($(this).parents('tr')).data();
-
+            var dialog = bootbox.dialog({
+                            title: 'Loading . . ',
+                            message: '<center><p><i class="fa fa-spin fa-spinner"></li></p></center>'
+                        });
+                        dialog.init(function () {
+                            setTimeout(function () {
+                                dialog.find(".modal-title").html("Tambahkan Data Tokoh");
+                                dialog.find(".bootbox-body").html('<div class="row"><div class="col-md-12 col-sm-12 col-xs-12"><label>Nama :</label><input  class="form-control nama" placeholder="Nama Tokoh" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tempat Lahir :</label><input  class="form-control tempat_lahir" placeholder="Tempat Lahir" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tanggal Lahir :</label><input  class="form-control tanggal_lahir" placeholder="Tanggal Lahir" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tanggal Wafat :</label><input  class="form-control tanggal_wafat" placeholder="Optional"></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Foto :</label><div style="width:300px;margin: auto;"><img class="fotoDisplay img-responsive" src=""></img></div><input  class="form-control foto" id="foto" name="foto" type="file" required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Video :</label><div style="width:300px;margin: auto;"><video class="videoDisplay img-responsive" src="" autoplay="false" controls="true"></video></div><input  class="form-control video" name="video" type="file" id="video"  required></div><div class="col-md-12 col-sm-12 col-xs-12"><label>Tentang Tokoh :</label><textarea class="form-control txtArea" row="4"></textarea> </div></div><div class="row" style="padding-top:10px"><div class="col-md-6 col-sm-6 col-xs-6"><button class="btn btn-success waves-effect saveit pull-right">Simpan Data</button></div><div class="col-md-6 col-sm-6 col-xs-6"><button class="btn btn-primary waves-effect pull-left" data-dismiss="modal">Tutup</button></div></div>');
+                                $.get(base_url+"findtokoh/"+data[0],function(es){
+                                   es = es[0];
+                                   console.log(es);
+                                   dialog.find(".nama").val(es.nama);
+                                   dialog.find(".tempat_lahir").val(es.tempat_lahir);
+                                   dialog.find(".tanggal_lahir").val(es.tanggal_lahir);
+                                   dialog.find(".tanggal_wafat").val(es.tanggal_wafat);
+                                   dialog.find(".fotoDisplay").attr("src",base_assets+"/_upload/foto/"+es.foto);
+                                   dialog.find(".videoDisplay").attr("src",base_assets+"/_upload/video/"+es.video);
+                                   dialog.find(".txtArea").val(es.tentang);
+                                });
+                                dialog.find(".tanggal_lahir").datepicker({
+                                    format: 'yyyy-mm-dd'
+                                });
+                                dialog.find(".tanggal_wafat").datepicker({
+                                    format: 'yyyy-mm-dd'
+                                });
+                                dialog.find(".saveit").on("click",function(){
+                                    var formData = new FormData();
+                                    formData.append('foto', $('#foto')[0].files[0]);
+                                    formData.append('video', $('#video')[0].files[0]);
+                                    formData.append('id', data[0]);
+                                    $.ajax({
+                                        url: base_url+"uploadUpdate",
+                                        type: 'POST',
+                                        data: formData,
+                                        mimeType: "multipart/form-data",
+                                        contentType: false,
+                                        cache: false,
+                                        processData: false,
+                                        success: function(datas, textStatus, jqXHR) {
+                                            console.log(textStatus);
+                                            if(textStatus == "success")
+                                            {
+                                                var datas = JSON.parse(datas);
+                                                if(datas["status"] == 1)
+                                                {
+                                                   var nama = $(".nama").val();
+                                                   var tempat_lahir = $(".tempat_lahir").val();
+                                                   var tanggal_lahir = $(".tanggal_lahir").val();
+                                                   var tanggal_wafat = $(".tanggal_wafat").val();
+                                                   var txtArea = $(".txtArea").val();
+                                                   var foto = datas["dataFoto"];
+                                                   var video = datas["dataVideo"];
+                                                   $.post(base_url+"updatedata",{id_data:data[0],nama:nama,tempat_lahir:tempat_lahir,tanggal_lahir:tanggal_lahir,tanggal_wafat:tanggal_wafat,txtArea:txtArea,foto:foto,video:video},function(e){
+                                                    if(e["status"] == 1)
+                                                    {
+                                                        bootbox.hideAll();
+                                                        swal({
+                                                            title: 'Sukses',
+                                                            text: 'Data Sukses Di Ubah',
+                                                            type: 'success'
+                                                        }, function () {
+                                                           $('#tokoh').DataTable().ajax.reload();
+                                                        })
+                                                        
+                                                    }else{
+                                                        swal({
+                                                            title: 'Error!',
+                                                            text: 'Gagal Ubah Data',
+                                                            type: 'error'
+                                                        })
+                                                    }
+                                                   });
+                                                }else{
+                                                   swal({
+                                                        title: 'Error!',
+                                                        text: 'Gagal Upload File',
+                                                        type: 'error'
+                                                    })
+                                                }
+                                            }else if(textStatus == "timeout"){
+                                                swal({
+                                                        title: 'Error!',
+                                                        text: 'Jaringan Timeout !',
+                                                        type: 'error'
+                                                    })
+                                            }else if(textStatus == "error")
+                                            {
+                                                swal({
+                                                        title: 'Error!',
+                                                        text: 'Not Found',
+                                                        type: 'error'
+                                                    })
+                                            }
+                                            
+                                        }
+                                    });
+                                });
+                            }, 3000);
+                        });
         });
         $('#tokoh tbody').on('click', '#print', function () {
             var data = table.row($(this).parents('tr')).data();
