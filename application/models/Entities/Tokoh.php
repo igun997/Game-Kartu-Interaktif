@@ -123,6 +123,7 @@ class Tokoh {
                 $this->tentang = $get->row()->tentang;
                 $this->foto = $get->row()->foto;
                 $this->video = $get->row()->video;
+                $this->getAll = $get->result();
             }else{
                 return 0;
             }

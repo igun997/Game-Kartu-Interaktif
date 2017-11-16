@@ -72,6 +72,7 @@ class Pengguna {
             $this->id_users = $get->row()->id_users;
             $this->username = $get->row()->username;
             $this->password = $get->row()->password;
+            $this->getAll = $get->result();
         } else {
             $get = $this->CI->db->get("users");
             $this->getAll = $get->result();
