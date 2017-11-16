@@ -135,7 +135,7 @@ class Tokoh {
     }
     
     function fetchAll() {
-        return $this->getAll();
+        return $this->getAll;
     }
 
     function count_rows() {
