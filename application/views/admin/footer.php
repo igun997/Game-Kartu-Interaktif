@@ -20,6 +20,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script>
             base_url = "<?= base_url("rest/") ?>";
             redir_base = "<?= base_url("admin") ?>";
+            base_assets = "<?= base_url() ?>";
             identity = "<?= $csf ?>";
         </script>
     <?php 
