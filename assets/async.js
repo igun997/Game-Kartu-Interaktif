@@ -108,7 +108,7 @@ $(document).ready(function () {
             "columnDefs": [{
                     "targets": -1,
                     "data": null,
-                    "defaultContent": "<button class='btn btn-success waves-effect' id='detail'><li class='fa fa-search'></li></button> <button class='btn btn-warning waves-effect' id='edit'><li class='fa fa-edit'></li></button> <button class='btn btn-danger waves-effect' id='hapus'><li class='fa fa-trash'></li></button> <button class='btn btn-primary waves-effect' id='cetak'><li class='fa fa-print'></li></button>"
+                    "defaultContent": "<button class='btn btn-success waves-effect' id='detail'><li class='fa fa-search'></li></button> <button class='btn btn-warning waves-effect' id='edit'><li class='fa fa-edit'></li></button> <button class='btn btn-danger waves-effect' id='hapus'><li class='fa fa-trash'></li></button> <button class='btn btn-primary waves-effect' id='print'><li class='fa fa-print'></li></button>"
                 }],
             dom: 'Bfrtip',
             buttons: [
@@ -281,7 +281,9 @@ $(document).ready(function () {
                                                    var txtArea = $(".txtArea").val();
                                                    var foto = datas["dataFoto"];
                                                    var video = datas["dataVideo"];
-                                                   $.post(base_url+"updatedata",{id_data:data[0],nama:nama,tempat_lahir:tempat_lahir,tanggal_lahir:tanggal_lahir,tanggal_wafat:tanggal_wafat,txtArea:txtArea,foto:foto,video:video},function(e){
+                                                   var fotoNow = datas["curFoto"];
+                                                   var vidNow = datas["vidNow"];
+                                                   $.post(base_url+"updatedata",{curFoto:fotoNow,vidNow:vidNow,id_data:data[0],nama:nama,tempat_lahir:tempat_lahir,tanggal_lahir:tanggal_lahir,tanggal_wafat:tanggal_wafat,txtArea:txtArea,foto:foto,video:video},function(e){
                                                     if(e["status"] == 1)
                                                     {
                                                         bootbox.hideAll();
@@ -331,6 +333,28 @@ $(document).ready(function () {
         });
         $('#tokoh tbody').on('click', '#print', function () {
             var data = table.row($(this).parents('tr')).data();
+            var dialog = bootbox.dialog({
+                            title: 'Proses Menciptakan Kartu . . ',
+                            message: '<center><p><i class="fa fa-spin fa-spinner"></li></p></center>'
+                        });
+                        dialog.init(function () {
+                            setTimeout(function () {
+                                $.get(base_url+"generatecard/"+data[0],function(ez){
+                                    if(ez["status"] == 1)
+                                    {
+                                        dialog.find(".modal-title").html("Kartu Sukses Di Buat");
+                                        dialog.find(".bootbox-body").html("<div class='row'><div class='col-md-12 col-xs-12 col-sm-12'><center><img src='"+ez["data"]+"' class='img-responsive'></img></center></div></div>");
+                                    }else{
+                                        swal({
+                                            title: 'Kartu Gagal di Buat',
+                                            text: ez["msg"],
+                                            type: 'error'
+                                        })
+                                    }
+                                });
+                                
+                            },1000);
+                        });
 
         });
         $('#tokoh tbody').on('click', '#hapus', function () {
@@ -366,7 +390,6 @@ $(document).ready(function () {
             }
         })
         });
-
     }
 });
 
