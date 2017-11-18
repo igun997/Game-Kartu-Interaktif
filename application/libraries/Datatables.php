@@ -351,9 +351,10 @@
           $aaData[$row_key] = array_values($aaData[$row_key]);
       }
       $realData = array();
-      $no = 0;
+      
       $nos = 0;
       foreach ($aaData as $key => $values) {
+          $no = 0;
           foreach ($values as $key => $value) {
               $realData[$nos][$no++] = $value;
           }
