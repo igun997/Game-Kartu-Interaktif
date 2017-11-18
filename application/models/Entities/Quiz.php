@@ -136,6 +136,7 @@ class Quiz {
                 $this->id_users = $get->row()->id_users;
                 $this->id_data = $get->row()->id_data;
                 $this->getAll = $get->result();
+                $this->count = $get->num_rows();
             } else {
                 return 0;
             }

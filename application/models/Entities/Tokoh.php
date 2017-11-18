@@ -124,6 +124,7 @@ class Tokoh {
                 $this->foto = $get->row()->foto;
                 $this->video = $get->row()->video;
                 $this->getAll = $get->result();
+                $this->count = $get->num_rows();
             }else{
                 return 0;
             }
