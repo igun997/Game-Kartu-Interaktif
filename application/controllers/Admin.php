@@ -11,7 +11,7 @@ class Admin extends CI_Controller {
         if ($this->session->login != true) {
             redirect(base_url("login"));
         }
-        $this->load->model("m_datamining");
+        $this->load->model("M_Datamining");
     }
 
     public function index() {

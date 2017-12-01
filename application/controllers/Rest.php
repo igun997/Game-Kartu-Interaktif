@@ -156,7 +156,8 @@ class Rest extends REST_Controller {
         $config["encrypt_name"] = true;
         $config["mod_mime_fix"] = true;
         if (isset($_FILES["foto"]["tmp_name"])) {
-            $config['upload_path'] = '_upload/foto/';
+            $config['upload_path'] = realpath(APPPATH . '../_upload/foto/');
+
             @unlink($config['upload_path'] . $fotoNow);
             $config['allowed_types'] = 'jpg|jpeg';
             $config['max_size'] = 500;
@@ -286,7 +287,7 @@ class Rest extends REST_Controller {
         $config["encrypt_name"] = true;
         $config["mod_mime_fix"] = true;
         if (isset($_FILES["foto"]["tmp_name"])) {
-            $config['upload_path'] = '_upload/foto/';
+            $config['upload_path'] = realpath(APPPATH . '../_upload/foto/');
             $config['allowed_types'] = 'jpg|jpeg';
             $config['max_size'] = 500;
             $this->load->library('upload', $config, 'fotoObjek');
